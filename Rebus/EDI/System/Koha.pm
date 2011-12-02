@@ -1,4 +1,4 @@
-package RebusEDI::System::Koha;
+package Rebus::EDI::System::Koha;
 
 # Copyright 2011 Mark Gavillet
 
@@ -7,7 +7,7 @@ use warnings;
 
 =head1 NAME
 
-RebusEDI::System::Koha
+Rebus::EDI::System::Koha
 
 =head1 VERSION
 

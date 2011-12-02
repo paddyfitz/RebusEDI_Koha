@@ -1,4 +1,4 @@
-package RebusEDI::Main;
+package Rebus::EDI;
 
 # Copyright 2011 Mark Gavillet
 
@@ -7,7 +7,7 @@ use warnings;
 
 =head1 NAME
 
-RebusEDI::Main
+Rebus::EDI
 
 =head1 VERSION
 
@@ -41,17 +41,9 @@ sub new {
 	my $class			=	shift;
 	my $system			=	shift;
 	my $self			=	{};
-	$self->{system}		=	$system;
-	if ($self->{system}	eq	"evergreen")
-	{
-		use RebusEDI::System::Evergreen;
-		$self->{edi_system}	= RebusEDI::System::Evergreen->new();
-	}
-	if ($self->{system}	eq	"koha")
-	{
-		use RebusEDI::System::Koha;
-		$self->{edi_system}	= RebusEDI::System::Koha->new();
-	}
+	$self->{system}		=	'koha';
+	use Rebus::EDI::System::Koha;
+	$self->{edi_system}	=	Rebus::EDI::System::Koha->new();
 	bless $self, $class;
 	return $self;
 }
@@ -78,8 +70,8 @@ sub send_orders {
 	{
 		#print "Module: ".$order->{module}." - order_id: ".$order->{order_id}."\n";
 		my $module=$order->{module};
-		require "RebusEDI/Vendor/$module.pm";
-		$module="RebusEDI::Vendor::$module";
+		require "Rebus/EDI/Vendor/$module.pm";
+		$module="Rebus::EDI::Vendor::$module";
 		import $module;
 		my $vendor_module=$module->new();
 		my $order_message=$vendor_module->create_order_message($order);

@@ -1,4 +1,4 @@
-package RebusEDI::Vendor::Default;
+package Rebus::EDI::Vendor::Default;
 
 # Copyright 2011 Mark Gavillet
 
@@ -12,7 +12,7 @@ our @EXPORT  = qw(
 
 =head1 NAME
 
-RebusEDI::Main
+Rebus::EDI::Vendor::Default
 
 =head1 VERSION
 
@@ -192,18 +192,18 @@ sub create_order_message {
 	### Lineitems
 	foreach my $lineitem (@{$order->{lineitems}})
 	{
-		use RebusEDI::Main;
+		use Rebus::EDI;
 		use Business::ISBN;
 		$linecount++;
 		my $note;
 		#my $price		=	$lineitem->{price};
-		#my $title		=	RebusEDI::Main::string35escape(RebusEDI::Main::escape_reserved($lineitem->{title}));
-		#my $author		=	RebusEDI::Main::string35escape(RebusEDI::Main::escape_reserved($lineitem->{author}));
-		#my $publisher	=	RebusEDI::Main::string35escape(RebusEDI::Main::escape_reserved($lineitem->{publisher}));
+		#my $title		=	Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{title}));
+		#my $author		=	Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{author}));
+		#my $publisher	=	Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{publisher}));
 		my $isbn;
 		if (length($lineitem->{isbn})==10 || substr($lineitem->{isbn},0,3) eq "978" || index($lineitem->{isbn},"|") !=-1)
 		{
-			$isbn=RebusEDI::Main::cleanisbn($lineitem->{isbn});
+			$isbn=Rebus::EDI::cleanisbn($lineitem->{isbn});
 			$isbn=Business::ISBN->new($isbn);
 			if ($isbn)
 			{
@@ -225,9 +225,9 @@ sub create_order_message {
 		{
 			$isbn=$lineitem->{isbn};
 		}
-		#my $copyrightdate	=	RebusEDI::Main::escape_reserved($lineitem->{year});
-		#my $quantity		=	RebusEDI::Main::escape_reserved($lineitem->{quantity});
-		#my $ordernumber		=	RebusEDI::Main::escape_reserved($lineitem->{rff});
+		#my $copyrightdate	=	Rebus::EDI::escape_reserved($lineitem->{year});
+		#my $quantity		=	Rebus::EDI::escape_reserved($lineitem->{quantity});
+		#my $ordernumber		=	Rebus::EDI::escape_reserved($lineitem->{rff});
 		
 		### line number, isbn
 		$order_message.="LIN+$linecount++".$isbn.":EN'";
@@ -238,27 +238,27 @@ sub create_order_message {
 		$segment++;
 		
 		### title
-		$order_message.="IMD+L+050+:::".RebusEDI::Main::string35escape(RebusEDI::Main::escape_reserved($lineitem->{title}))."'";
+		$order_message.="IMD+L+050+:::".Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{title}))."'";
 		$segment++;
 		
 		### author
-		$order_message.="IMD+L+009+:::".RebusEDI::Main::string35escape(RebusEDI::Main::escape_reserved($lineitem->{author}))."'";
+		$order_message.="IMD+L+009+:::".Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{author}))."'";
 		$segment++;
 		
 		### publisher
-		$order_message.="IMD+L+109+:::".RebusEDI::Main::string35escape(RebusEDI::Main::escape_reserved($lineitem->{publisher}))."'";
+		$order_message.="IMD+L+109+:::".Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{publisher}))."'";
 		$segment++;
 		
 		### date of publication
-		$order_message.="IMD+L+170+:::".RebusEDI::Main::escape_reserved($lineitem->{year})."'";
+		$order_message.="IMD+L+170+:::".Rebus::EDI::escape_reserved($lineitem->{year})."'";
 		$segment++;
 		
 		### binding
-		$order_message.="IMD+L+220+:::".RebusEDI::Main::escape_reserved($lineitem->{binding})."'";
+		$order_message.="IMD+L+220+:::".Rebus::EDI::escape_reserved($lineitem->{binding})."'";
 		$segment++;
 		
 		### quantity
-		$order_message.="QTY+21:".RebusEDI::Main::escape_reserved($lineitem->{quantity})."'";
+		$order_message.="QTY+21:".Rebus::EDI::escape_reserved($lineitem->{quantity})."'";
 		$segment++;
 		
 		### copies
@@ -289,7 +289,7 @@ sub create_order_message {
 			### copy location
 			if ($copy->{lsq})
 			{
-				$order_message.="+".RebusEDI::Main::string35escape(RebusEDI::Main::escape_reserved($copy->{lsq})).":LSQ";
+				$order_message.="+".Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($copy->{lsq})).":LSQ";
 			}
 			
 			### close GIR segment
