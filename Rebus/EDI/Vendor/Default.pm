@@ -1,6 +1,6 @@
 package Rebus::EDI::Vendor::Default;
 
-# Copyright 2011 Mark Gavillet
+# Copyright 2012 Mark Gavillet
 
 use strict;
 use warnings;
@@ -9,6 +9,12 @@ use parent qw(Exporter);
 our @EXPORT  = qw(
   test
 );
+
+### Evergreen
+#our $edidir				=	"/tmp/";
+
+### Koha
+our $edidir				=	"$ENV{'PERL5LIB'}/misc/edi_files/";
 
 =head1 NAME
 
@@ -34,7 +40,7 @@ sub parse_quote {
 	use Edifact::Interchange;
 	my $edi=Edifact::Interchange->new;
 	my @parsed_quote;
-	$edi->parse_file("/tmp/".$quote->{filename});
+	$edi->parse_file($edidir.$quote->{filename});
 	my $messages=$edi->messages();
 	my $message_count=@{$messages};
 	my $count;
@@ -101,7 +107,6 @@ sub parse_quote {
 
 sub create_order_message {
 	my ($self, $order)=@_;
-	#use Data::Dumper;print Dumper($order);
 	my @datetime=localtime(time);
 	my $longyear=($datetime[5]+1900);
 	my $shortyear=sprintf "%02d",($datetime[5]-100);
@@ -196,10 +201,6 @@ sub create_order_message {
 		use Business::ISBN;
 		$linecount++;
 		my $note;
-		#my $price		=	$lineitem->{price};
-		#my $title		=	Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{title}));
-		#my $author		=	Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{author}));
-		#my $publisher	=	Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($lineitem->{publisher}));
 		my $isbn;
 		if (length($lineitem->{isbn})==10 || substr($lineitem->{isbn},0,3) eq "978" || index($lineitem->{isbn},"|") !=-1)
 		{
@@ -225,9 +226,6 @@ sub create_order_message {
 		{
 			$isbn=$lineitem->{isbn};
 		}
-		#my $copyrightdate	=	Rebus::EDI::escape_reserved($lineitem->{year});
-		#my $quantity		=	Rebus::EDI::escape_reserved($lineitem->{quantity});
-		#my $ordernumber		=	Rebus::EDI::escape_reserved($lineitem->{rff});
 		
 		### line number, isbn
 		$order_message.="LIN+$linecount++".$isbn.":EN'";
@@ -265,6 +263,7 @@ sub create_order_message {
 		my $copyno=0;
 		foreach my $copy (@{$lineitem->{copies}})
 		{
+			my $gir_cnt=2;
 			$copyno++;
 			$segment++;
 			
@@ -281,15 +280,28 @@ sub create_order_message {
 			if ($copy->{lcl})
 			{
 				$order_message.="+".$copy->{lcl}.":LCL";
+				$gir_cnt++;
 			}
 			
 			### circ modifier
 			$order_message.="+".$copy->{lst}.":LST";
+			$gir_cnt++;
 			
 			### copy location
 			if ($copy->{lsq})
 			{
 				$order_message.="+".Rebus::EDI::string35escape(Rebus::EDI::escape_reserved($copy->{lsq})).":LSQ";
+				$gir_cnt++;
+			}
+			
+			### quantity
+			if ($gir_cnt>=5)
+			{
+				$order_message.="'GIR+".sprintf("%03d",$copyno)."+1:LQT";
+			}
+			else
+			{
+				$order_message.="+1:LQT";
 			}
 			
 			### close GIR segment
@@ -355,21 +367,17 @@ sub post_process_quote_file {
 	$ftp->cwd($ftp_account->{in_dir}) or die "Couldn't change directory";
 	
 	### move file to another directory
-	my $new_dir='processed';
-	my $new_file=$new_dir."/".$filename;
-	$ftp->copy($filename, $new_file) or die "Couldn't move remote file to $new_file ";
-	$ftp->delete($filename);
-	$ftp->quit;
+	#my $new_dir='processed';
+	#my $new_file=$new_dir."/".$filename;
+	#$ftp->copy($filename, $new_file) or die "Couldn't move remote file to $new_file ";
+	#$ftp->delete($filename);
+	#$ftp->quit;
 		
 	### rename file
-	#my $rext='.EEQ';
-	#my $qext='.CEQ';
-	#$filename=~ s/$qext/$rext/g;
-	#$ftp->rename($remote_file,$filename) or die "Couldn't rename remote file";
-}
-
-sub test {
-	print "test";
+	my $rext='.EEQ';
+	my $qext='.CEQ';
+	$filename=~ s/$qext/$rext/g;
+	$ftp->rename($remote_file,$filename) or die "Couldn't rename remote file";
 }
 
 1;

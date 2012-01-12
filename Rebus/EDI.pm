@@ -1,6 +1,6 @@
 package Rebus::EDI;
 
-# Copyright 2011 Mark Gavillet
+# Copyright 2012 Mark Gavillet
 
 use strict;
 use warnings;
@@ -56,30 +56,22 @@ sub retrieve_quotes {
 	my $self					= shift;
 	my @vendor_ftp_accounts		= $self->{edi_system}->retrieve_vendor_ftp_accounts;
 	my @downloaded_quotes		= $self->{edi_system}->download_quotes(\@vendor_ftp_accounts);
-	#use Data::Dumper;print "local_files: ".Dumper(@downloaded_quotes)."\n";
 	my $processed_quotes		= $self->{edi_system}->process_quotes(\@downloaded_quotes);
 }
 
 sub send_orders {
-	my $self					= shift;
-	my $orders					= $self->{edi_system}->retrieve_orders;
-	#use Data::Dumper; print Dumper($orders);
-	my $order_details			= $self->{edi_system}->retrieve_order_details($orders);
-	#use Data::Dumper; print Dumper($order_details);
+	my ($self,$order_id,$ean)	= @_;
+	my $orders					= $self->{edi_system}->retrieve_orders($order_id);
+	my $order_details			= $self->{edi_system}->retrieve_order_details($orders,$ean);
 	foreach my $order (@{$order_details})
 	{
-		#print "Module: ".$order->{module}." - order_id: ".$order->{order_id}."\n";
 		my $module=$order->{module};
 		require "Rebus/EDI/Vendor/$module.pm";
 		$module="Rebus::EDI::Vendor::$module";
 		import $module;
 		my $vendor_module=$module->new();
 		my $order_message=$vendor_module->create_order_message($order);
-		#use Data::Dumper;print "\n\n".$order_message."\n\n";
 		my $order_file=$self->{edi_system}->create_order_file($order_message,$order->{order_id});
-		#print "$order_file\n";
-		#my $sent_order=$self->{edi_system}->send_order_message($order_file);
-		#$self->{edi_system}->log_order_message($order_message);
 	}
 }
 
@@ -138,9 +130,8 @@ sub cleanisbn
 		{
 			my @isbns=split(/\|/,$isbn);
 			$isbn=$isbns[0];
-			#print "0: ".$isbns[0]."\n";
 		}
-		$isbn=escape_reserved($isbn);
+		$isbn=__PACKAGE__->escape_reserved($isbn);
 		$isbn =~ s/^\s+//;
 		$isbn =~ s/\s+$//;
 		return $isbn;
@@ -150,10 +141,5 @@ sub cleanisbn
 		return undef;
 	}
 }
-
-
-
-
-
 
 1;
