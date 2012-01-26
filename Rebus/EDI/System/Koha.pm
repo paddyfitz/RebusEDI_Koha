@@ -83,7 +83,7 @@ sub download_quotes {
 		my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
 		printf EDIFTPLOG "\n\n%4d-%02d-%02d %02d:%02d:%02d\n-----\n",$year+1900,$mon+1,$mday,$hour,$min,$sec;
 		print EDIFTPLOG "Connecting to ".$account->{server}."... ";
-		my $ftp=Net::FTP->new($account->{server},Timeout=>10) or $newerr=1;
+		my $ftp=Net::FTP->new($account->{server},Timeout=>10,Passive=>1) or $newerr=1;
 		push @ERRORS, "Can't ftp to ".$account->{server}.": $!\n" if $newerr;
 		myerr(@ERRORS) if $newerr;
 		if (!$newerr)
@@ -585,7 +585,7 @@ sub send_order_message {
 		
 		print EDIFTPLOG "Connecting to ".$ftpaccount->{host}."... ";
 		# connect to ftp account
-		my $ftp=Net::FTP->new($ftpaccount->{host},Timeout=>10) or $newerr=1;
+		my $ftp=Net::FTP->new($ftpaccount->{host},Timeout=>10,Passive=>1) or $newerr=1;
 		push @ERRORS, "Can't ftp to ".$ftpaccount->{host}.": $!\n" if $newerr;
 		myerr(@ERRORS) if $newerr;
 		if (!$newerr)
@@ -673,13 +673,15 @@ sub get_order_lineitems {
 	my @fleshed_lineitems;
 	foreach my $lineitem (@lineitems)
 	{
+		use Rebus::EDI;
+		my $clean_isbn=Rebus::EDI::cleanisbn($lineitem->{isbn});
 		my $fleshed_lineitem;
 		$fleshed_lineitem->{binding}	=	'O';
 		$fleshed_lineitem->{currency}	=	'GBP';
 		$fleshed_lineitem->{id}			=	$lineitem->{ordernumber};
 		$fleshed_lineitem->{qli}		=	$lineitem->{booksellerinvoicenumber};
 		$fleshed_lineitem->{rff}		=	$order_id."/".$fleshed_lineitem->{id};
-		$fleshed_lineitem->{isbn}		=	$lineitem->{isbn};
+		$fleshed_lineitem->{isbn}		=	$clean_isbn;
 		$fleshed_lineitem->{title}		=	$lineitem->{title};
 		$fleshed_lineitem->{author}		=	$lineitem->{author};
 		$fleshed_lineitem->{publisher}	=	$lineitem->{publishercode};

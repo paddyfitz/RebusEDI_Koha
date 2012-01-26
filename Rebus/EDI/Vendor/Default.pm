@@ -263,18 +263,24 @@ sub create_order_message {
 		my $copyno=0;
 		foreach my $copy (@{$lineitem->{copies}})
 		{
-			my $gir_cnt=2;
+			my $gir_cnt=0;
 			$copyno++;
 			$segment++;
 			
 			### copy number
 			$order_message.="GIR+".sprintf("%03d",$copyno);
 			
+			### quantity
+			$order_message.="+1:LQT";
+			$gir_cnt++;
+			
 			### Library branchcode
 			$order_message.="+".$copy->{llo}.":LLO";
+			$gir_cnt++;
 			
 			### Fund code
 			$order_message.="+".$copy->{lfn}.":LFN";
+			$gir_cnt++;
 			
 			### call number
 			if ($copy->{lcl})
@@ -283,10 +289,6 @@ sub create_order_message {
 				$gir_cnt++;
 			}
 			
-			### circ modifier
-			$order_message.="+".$copy->{lst}.":LST";
-			$gir_cnt++;
-			
 			### copy location
 			if ($copy->{lsq})
 			{
@@ -294,14 +296,14 @@ sub create_order_message {
 				$gir_cnt++;
 			}
 			
-			### quantity
+			### circ modifier
 			if ($gir_cnt>=5)
 			{
-				$order_message.="'GIR+".sprintf("%03d",$copyno)."+1:LQT";
+				$order_message.="'GIR+".sprintf("%03d",$copyno)."+".$copy->{lst}.":LST";
 			}
 			else
 			{
-				$order_message.="+1:LQT";
+				$order_message.="+".$copy->{lst}.":LST";
 			}
 			
 			### close GIR segment

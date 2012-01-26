@@ -137,7 +137,7 @@ sub cleanisbn
 			my @isbns=split(/\|/,$isbn);
 			$isbn=$isbns[0];
 		}
-		$isbn=__PACKAGE__->escape_reserved($isbn);
+		#$isbn=__PACKAGE__->escape_reserved($isbn);
 		$isbn =~ s/^\s+//;
 		$isbn =~ s/\s+$//;
 		return $isbn;
