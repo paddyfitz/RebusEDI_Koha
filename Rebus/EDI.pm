@@ -36,6 +36,18 @@ our @vendors	=	(
 		ean		=>	"5013546027856",
 		module	=>	"Dawsons"
 	},
+	{	
+		name	=>	"Coutts",
+		san		=>	"",
+		ean		=>	"5013546048686",
+		module	=>	"Default"
+	},
+	{	
+		name	=>	"Tomlinsons",
+		san		=>	"",
+		ean		=>	"5033075063552",
+		module	=>	"Default"
+	},
 	{	name	=>	"PTFS Europe",
 		san		=>	"",
 		ean		=>	"5011234567890",
