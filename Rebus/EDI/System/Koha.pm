@@ -188,7 +188,7 @@ sub LogQuote {
 	my ($sec,$min,$hour,$mday,$mon,$year) = localtime(time);
 	my $last_activity=sprintf("%4d-%02d-%02d",$year+1900,$mon+1,$mday);
 	my $account = record_activity( $account_or_id,$last_activity );
-	my $message_type=($content =~ /'UNH\+\w+\+(\S{6}):/) ? $1 : 'QUOTES';   # cheap sniffing, QUOTES fallback
+	my $message_type=($content =~ /'UNH\+\w+\+(\S{6}):/) ? $1 : 'QUOTES';
 	my $dbh = C4::Context->dbh;
 	my $sth = $dbh->prepare('insert into edifact_messages (message_type, date_sent, provider, 
 		status, edi, remote_file) values (?,?,?,?,?,?)');
