@@ -37,8 +37,8 @@ sub new {
 
 sub parse_quote {
 	my ($self, $quote)=@_;
-	use Edifact::Interchange;
-	my $edi=Edifact::Interchange->new;
+	use Business::Edifact::Interchange;
+	my $edi=Business::Edifact::Interchange->new;
 	my @parsed_quote;
 	$edi->parse_file($edidir.$quote->{filename});
 	my $messages=$edi->messages();
