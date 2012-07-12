@@ -271,7 +271,7 @@ sub create_order_message {
 			$order_message.="GIR+".sprintf("%03d",$copyno);
 			
 			### quantity
-			$order_message.="+1:LQT";
+			$order_message.="+".Rebus::EDI::escape_reserved($lineitem->{quantity}).":LQT";
 			$gir_cnt++;
 			
 			### Library branchcode

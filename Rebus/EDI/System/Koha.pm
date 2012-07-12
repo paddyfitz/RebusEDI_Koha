@@ -687,7 +687,7 @@ sub get_order_lineitems {
 		$fleshed_lineitem->{publisher}	=	$lineitem->{publishercode};
 		$fleshed_lineitem->{year}		=	$lineitem->{copyrightdate};
 		$fleshed_lineitem->{price}		=	sprintf "%.2f",$lineitem->{listprice};
-		$fleshed_lineitem->{quantity}	=	'1';
+		$fleshed_lineitem->{quantity}	=	get_order_quantity($lineitem->{ordernumber});
 		
 		my @lineitem_copies;
 		my $fleshed_lineitem_detail;
@@ -704,6 +704,22 @@ sub get_order_lineitems {
 		push (@fleshed_lineitems,$fleshed_lineitem);
 	}
 	return @fleshed_lineitems;
+}
+
+sub get_order_quantity {
+	my $ordernumber=shift;
+	my @rows;
+	my $quantity;
+	my $dbh = C4::Context->dbh;
+	my $sth = $dbh->prepare(" SELECT count(*) FROM aqorders_items inner join 
+		items on aqorders_items.itemnumber=items.itemnumber WHERE 
+		aqorders_items.ordernumber=?");
+	$sth->execute($ordernumber);
+	while (@rows=$sth->fetchrow_array())
+	{
+		$quantity=$rows[0];
+	}
+	return $quantity;
 }
 
 sub get_lineitem_additional_info {
