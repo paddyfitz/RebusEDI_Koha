@@ -622,7 +622,8 @@ sub send_order_message {
    						$ftp->quit;
    						unlink($filename);
    						record_activity($ftpaccount->{id});
-   						log_order($order_message,$ftpaccount->{path}.substr($filename,4),$ftpaccount->{edi_account_id},$order_id);
+   						my $pos=rindex($filename,"/");
+   						log_order($order_message,$ftpaccount->{path}.substr($filename,$pos),$ftpaccount->{provider},$order_id);
    						
    						return $result;
    					}
